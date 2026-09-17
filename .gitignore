@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# Build artifacts / local test output
+*.deb
+deb/flatstitch_*/DEBIAN/md5sums
+screenshot_*.png
+
+# Editor / OS cruft
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Anything a user might stitch while testing locally
+/scans/
+*.tiff

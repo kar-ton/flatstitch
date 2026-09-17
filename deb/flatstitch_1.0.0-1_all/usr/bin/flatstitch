@@ -1,0 +1,6 @@
+#!/bin/bash
+# flatstitch CLI launcher - uses the dedicated venv created at install time
+# so this tool's Python dependencies never conflict with system packages.
+export PYTHONPATH="/opt/flatstitch${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONDONTWRITEBYTECODE=1
+exec /opt/flatstitch/venv/bin/python3 -m flatstitch.cli "$@"
