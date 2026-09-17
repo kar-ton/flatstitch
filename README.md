@@ -7,6 +7,9 @@ TIFF. Functionally aimed at the same job as Microsoft ICE (Image Composite
 Editor), but deliberately narrowed to one specific case: **stitching flat
 scans**, not photo panoramas.
 
+<img width="1080" height="866" alt="image" src="https://github.com/user-attachments/assets/8ea2b48d-5b02-4030-a70c-4ad4487206c1" />
+
+
 There are two ways to run it, both built on the same core (the
 `flatstitch/` package):
 - **`flatstitch-gui.sh`** — a full graphical interface: add scans (button
