@@ -81,8 +81,9 @@ def stitch(
     sharpen_power: float = 6.0,
     compression: str = "lzw",
     ref_index: int = 0,
-    background: str = "white",
+    background: str = "transparent",
     interpolation: str = "cubic",
+    auto_orient: bool = True,
     n_jobs: int = 1,
 ):
     """Stitch input_paths into a single TIFF at output_path. If the tiles
@@ -93,6 +94,14 @@ def stitch(
     n_jobs > 1 parallelizes pairwise registration (the O(n^2) part) over
     a process pool - the more tiles, the more this helps; n_jobs=1 stays
     fully sequential in this process.
+
+    background="transparent" (the default) writes an alpha channel, so
+    areas no scan covers are see-through instead of a painted-in color;
+    "white"/"black" paint them instead and write no alpha.
+
+    auto_orient rotates the finished canvas by a multiple of 90 degrees
+    so the majority of tiles come out the way they were scanned - it
+    does nothing at all when the tiles already agree.
     """
     if len(input_paths) < 2:
         raise StitchError(_("pipeline.error.need_two_images"))
@@ -131,12 +140,21 @@ def stitch(
         if bundle_adjustment and len(group) > 2:
             poses = registration.bundle_adjust(n, group_edges, poses, ref_index=local_ref)
 
+        if auto_orient:
+            poses, applied_deg = registration.snap_output_orientation(poses, group)
+            if applied_deg:
+                logger.info(_("pipeline.log.auto_oriented", degrees=applied_deg))
+
         canvas_size, _offset, affine_mats = compositor.compute_canvas(shapes, poses)
         logger.info(_("pipeline.log.canvas_size", i=gi + 1, w=canvas_size[0], h=canvas_size[1], n=len(group)))
 
         dtype = dtypes[group[0]]
         canvas_w, canvas_h = canvas_size
-        fill_value = float(np.iinfo(dtype).max) if background == "white" else 0.0
+        transparent = background == "transparent"
+        # Under transparency the uncovered pixels still get a sane RGB
+        # value (white) underneath alpha=0, so a viewer that ignores the
+        # alpha channel shows the same thing 1.0.0 did rather than black.
+        fill_value = 0.0 if background == "black" else float(np.iinfo(dtype).max)
 
         acc = None
         for idx in group:
@@ -145,7 +163,8 @@ def stitch(
                 img = img[..., :3]
             if acc is None:
                 n_channels = 1 if img.ndim == 2 else img.shape[2]
-                est_mb = (canvas_w * canvas_h * (n_channels * 4 + 4)) / (1024 ** 2)
+                bytes_per_px = n_channels * 4 + 4 + (n_channels + 1 if transparent else 0)
+                est_mb = (canvas_w * canvas_h * bytes_per_px) / (1024 ** 2)
                 logger.info(_("pipeline.log.memory_estimate", mb=f"{est_mb:.0f}"))
                 acc = compositor.StreamingCompositor(
                     canvas_size, n_channels, sharpen_power=sharpen_power,
@@ -160,18 +179,20 @@ def stitch(
 
         gap_pixels = int((~covered).sum())
         gap_fraction = gap_pixels / covered.size
-        if gap_fraction > 0.003:
+        if gap_fraction > 0.003 and not transparent:
             logger.warning(_("pipeline.warning.gap_pixels", pixels=gap_pixels,
                               percent=f"{100 * gap_fraction:.1f}"))
 
         result = np.round(result).astype(dtype)
+        if transparent:
+            result = compositor.attach_alpha(result, covered, dtype)
         del covered
 
         if len(groups) == 1:
             dest = out_path
         else:
             dest = out_path.with_name(f"{out_path.stem}_part{gi + 1}{out_path.suffix}")
-        io_utils.save_tiff(dest, result, compression=compression)
+        io_utils.save_tiff(dest, result, compression=compression, has_alpha=transparent)
         del result
         logger.info(_("pipeline.log.saved", path=dest))
         written.append(str(dest))

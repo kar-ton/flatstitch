@@ -12,7 +12,7 @@
   "cli.help.sharpen_power": "Sharpness of the seam transition (higher = narrower, sharper seam). Default: 6.0",
   "cli.help.interpolation": "Interpolation method when rotating scans. cubic - sharp, minimal halos around text/lines (default). lanczos4 is even sharper but produces visible ringing on high-contrast line art/text; linear - softest, no ringing at all.",
   "cli.help.compression": "TIFF compression (lossless). Default: lzw",
-  "cli.help.background": "Fill color for canvas areas no scan covers (usually just thin wedges at corners from rotation error). Default: white",
+  "cli.help.background": "Fill for canvas areas no scan covers (usually just thin wedges at corners from rotation error). transparent (default) writes an alpha channel so they are see-through; white/black paint them instead.",
   "cli.help.ref_index": "Index of the image used as the fixed reference point. Default: 0",
   "cli.help.jobs": "Number of processes for parallel pairwise image matching (this is the part that grows as n^2 with scan count). Default: all available CPU cores. --jobs 1 disables parallelism.",
   "cli.help.lang": "Interface language. Default: auto-detected from the system locale.",
@@ -21,7 +21,6 @@
   "cli.found_images": "Found {n} images:",
   "cli.output_default": "No output path given (-o) - will save as: {path}",
   "cli.error.prefix": "Error: {error}",
-
   "pipeline.error.need_two_images": "Need at least 2 images to stitch.",
   "pipeline.log.loading_features": "Loading {n} images and searching for features...",
   "pipeline.log.feature_count": "  [{i}] {name}: {n} features",
@@ -32,18 +31,14 @@
   "pipeline.log.memory_estimate": "Estimated memory for canvas: ~{mb} MB",
   "pipeline.warning.gap_pixels": "There are {pixels} pixels with no source coverage inside the stitched area ({percent}% of the canvas) - usually thin wedges at the edges from a slight scan rotation. If this is visible in the result, increase the overlap between neighboring scans.",
   "pipeline.log.saved": "Saved: {path}",
-
   "registration.log.inliers": "  {i} <-> {j}: {n} inliers",
   "registration.log.parallel_start": "Comparing pairs in parallel ({n} processes)...",
   "registration.warning.parallel_unavailable": "Parallel processing unavailable ({error}), continuing sequentially...",
   "registration.log.bundle_adjust_start": "Global refinement (bundle adjustment): {n_images} images, {n_edges} links...",
-
   "io.error.cannot_read": "Could not read image: {path}",
   "io.log.bigtiff": "Result is large - writing in BigTIFF format",
-
   "features.warning.no_sift": "SIFT is unavailable in this OpenCV build, using ORB instead",
   "features.error.unknown_detector": "Unknown feature detector: {method}",
-
   "gui.window_title": "flatstitch — stitch scans",
   "gui.toolbar.add_files": "Add files...",
   "gui.toolbar.add_folder": "Add folder...",
@@ -89,5 +84,9 @@
   "gui.dialog.result_folder_title": "Result folder",
   "gui.dialog.stitch_failed_title": "Could not stitch the images",
   "gui.result.saved_prefix": "Saved:\n{names}",
-  "gui.result.preview_failed": "Done, but could not build a preview."
+  "gui.result.preview_failed": "Done, but could not build a preview.",
+  "cli.help.no_auto_orient": "Do not auto-rotate the finished sheet. By default the canvas is turned by a multiple of 90 degrees so most tiles come out the way they were scanned - useful when a sheet was placed sideways on the glass. This has no effect when all scans already agree.",
+  "pipeline.log.auto_oriented": "Most scans were placed sideways relative to the reference - rotating the result by {degrees}deg",
+  "gui.settings.auto_orient_checkbox": "Auto-rotate result (90/180)",
+  "gui.background.transparent": "transparent"
 }

@@ -86,7 +86,7 @@ git status          # ПЕРЕВІРТЕ цей вивід перед коміт
 Якщо все чисто:
 
 ```bash
-git commit -m "flatstitch 1.0.0: rigid-transform scan stitcher, CLI + GUI, 10 languages"
+git commit -m "flatstitch 1.0.1: rigid-transform scan stitcher, CLI + GUI, 10 languages"
 ```
 
 ---
@@ -170,16 +170,18 @@ git push -u origin main
 
 **Сторінка репозиторію → Releases (праворуч) → Create a new release**
 
-- **Choose a tag** → введіть `v1.0.0` → *Create new tag on publish*
-- **Release title**: `flatstitch 1.0.0`
+- **Choose a tag** → введіть `v1.0.1` → *Create new tag on publish*
+- **Release title**: `flatstitch 1.0.1`
 - **Describe this release** — коротко, наприклад:
 
   ```
-  Перший випуск.
-
   - Жорстке перетворення (поворот+зсув) замість гомографії — не
     деформує прямі лінії й текст на сканах
   - CLI + GUI (Tkinter), 10 мов інтерфейсу
+  - Прозорий фон за замовчуванням (альфа-канал; RGBA або сірий+альфа,
+    8/16 біт). --background white|black — стара поведінка
+  - Автоповорот результату на кратне 90°, щоб аркуш не виходив боком,
+    коли опорний скан лежав боком. --no-auto-orient вимикає
   - Глобальне уточнення розташування (bundle adjustment) проти
     накопичення похибки на довгих ланцюжках сканів
   - Потокове компонування: пам'ять залежить від розміру полотна, а не
@@ -187,11 +189,11 @@ git push -u origin main
   - Вивід у TIFF (LZW, без втрат; BigTIFF для великих результатів)
 
   Встановлення:
-      sudo apt install ./flatstitch_1.0.0-1_all.deb
+      sudo apt install ./flatstitch_1.0.1-1_all.deb
   ```
 
 - **Attach binaries** — перетягніть у це поле файл
-  `flatstitch_1.0.0-1_all.deb`
+  `flatstitch_1.0.1-1_all.deb`
 - **Publish release**
 
 ---

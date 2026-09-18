@@ -7,9 +7,6 @@ TIFF. Functionally aimed at the same job as Microsoft ICE (Image Composite
 Editor), but deliberately narrowed to one specific case: **stitching flat
 scans**, not photo panoramas.
 
-<img width="1080" height="866" alt="image" src="https://github.com/user-attachments/assets/8ea2b48d-5b02-4030-a70c-4ad4487206c1" />
-
-
 There are two ways to run it, both built on the same core (the
 `flatstitch/` package):
 - **`flatstitch-gui.sh`** — a full graphical interface: add scans (button
@@ -44,10 +41,10 @@ ruins attempts to stitch scans with general-purpose panorama software.
 ## Installing the .deb package (recommended)
 
 The simplest way on Linux Mint / Ubuntu is to install the prebuilt
-`flatstitch_1.0.0-1_all.deb` package:
+`flatstitch_1.0.1-1_all.deb` package:
 
 ```bash
-sudo apt install ./flatstitch_1.0.0-1_all.deb
+sudo apt install ./flatstitch_1.0.1-1_all.deb
 ```
 
 This puts `flatstitch` (CLI) and `flatstitch-gui` (GUI) on your PATH,
@@ -65,7 +62,7 @@ if the install genuinely fails, the most reliable fix is to install
 directly with dpkg instead:
 
 ```bash
-sudo dpkg -i ./flatstitch_1.0.0-1_all.deb
+sudo dpkg -i ./flatstitch_1.0.1-1_all.deb
 sudo apt-get install -f -y   # pulls in any missing dependencies
 ```
 
@@ -99,12 +96,12 @@ icon after logging back in, run `sudo update-icon-caches
 ### Building the .deb from source
 
 If you change the code and want to rebuild the package, the layout for
-`dpkg-deb` lives in `deb/flatstitch_1.0.0-1_all/`. After making edits:
+`dpkg-deb` lives in `deb/flatstitch_1.0.1-1_all/`. After making edits:
 
 ```bash
 sudo apt install fakeroot        # once, if you don't have it
 cd deb
-fakeroot dpkg-deb --build --root-owner-group flatstitch_1.0.0-1_all
+fakeroot dpkg-deb --build --root-owner-group flatstitch_1.0.1-1_all
 ```
 
 ## Installing from source (without the .deb)
@@ -208,6 +205,79 @@ unknown-in-advance layout.
    and the result is saved as TIFF (LZW by default, lossless; large
    results are automatically saved as BigTIFF).
 
+## Output background and orientation
+
+**The background is transparent by default.** Areas of the canvas that no
+scan covers - normally just thin wedges at the edges where a sheet sat
+slightly crooked on the glass - are written as an alpha channel instead
+of being painted in. Color output becomes RGBA, grayscale becomes
+gray+alpha, at both 8 and 16 bits. The alpha is tagged as unassociated
+(straight, not premultiplied), and the RGB underneath the transparent
+pixels is still filled with white, so a viewer or tool that ignores the
+alpha channel shows exactly what 1.0.0 produced rather than a black
+border. `--background white` or `--background black` paints those areas
+in and writes no alpha at all.
+
+Costs, measured rather than assumed (16 scans, ~5400x4000 canvas):
+
+| | opaque | transparent |
+|---|---|---|
+| peak RAM | 1188304 KB | 1188376 KB (+0.006%) |
+| time | 78.6 s | 79.6 s |
+| output file | 6.96 MB | 8.97 MB (+29%) |
+
+Peak memory barely moves because the alpha channel is attached *after*
+the float32 accumulators are freed, so it never coexists with the
+pipeline's real high-water mark. On a smaller repeated benchmark
+(5 runs, best-of) transparency cost about 3% of runtime. The honest cost
+is the **file size**: a fourth channel that LZW compresses well but not
+to nothing. If output size matters more than transparency, use
+`--background white`.
+
+**Rotated scans (90/180/270) and auto-orientation.** Scans placed
+sideways or upside-down on the glass are handled, and this costs
+essentially nothing - which is worth explaining, because it's a property
+of the design rather than a feature that had to be bolted on:
+
+- SIFT and ORB descriptors are *rotation-invariant* by construction, so
+  a sideways scan's features match an upright neighbour's directly.
+- The geometric model is a rigid transform with a full 2x2 rotation
+  matrix, so 90 degrees is no harder to express than 0.5 degrees.
+
+Measured on identical tiles, one set upright and one set rotated
+90/180/270 (single CPU, 5 repeats, best-of):
+
+| | upright | rotated 90/180/270 |
+|---|---|---|
+| SIFT | 6.92 s, 6/6 pairs matched | 7.07 s, 6/6 pairs matched |
+| ORB | 3.58 s, 6/6 pairs matched | 3.53 s, 6/6 pairs matched |
+| peak RAM | 421716 KB | 421780 KB |
+
+Inlier counts were within a few percent either way (SIFT: 797/776/688...
+upright vs 806/804/668... rotated), so matching quality does not
+degrade.
+
+What *did* need fixing is subtler and was found by testing rather than
+by reasoning: the layout is built relative to one reference scan, so the
+canvas inherits **that** scan's orientation. Stitching was always
+correct, but if the reference happened to be the sideways one, every
+other tile was rotated to match it and the finished sheet came out
+sideways with the text on its side.
+
+So the canvas is now turned by a multiple of 90 degrees such that the
+majority of tiles end up the way they were scanned. Because only exact
+quarter turns are applied, there is no extra resampling - each tile is
+warped exactly once either way - and the step itself takes about
+**136 microseconds for 64 tiles**. When all scans already agree (the
+ordinary case) the chosen angle is 0 and nothing changes whatsoever, so
+existing behavior is untouched.
+
+This is a heuristic, not magic: it assumes most sheets were placed
+upright, since geometry alone cannot tell which way a document is
+"supposed" to face. With no majority - say four tiles at four different
+rotations - it declines to guess and leaves the orientation alone. Ties
+resolve to no change. `--no-auto-orient` turns it off entirely.
+
 ## Performance and memory
 
 This isn't the first version of this section — it now reflects what
@@ -289,7 +359,8 @@ changed after an external code review of the first version, and why.
 | `--downscale N` | shrink images by this factor only for feature search (speeds up very large scans, barely affects final stitching quality since stitching itself always happens at full resolution) |
 | `--min-inliers N` | how many agreeing points are needed to consider two scans linked (default 12; lower it if the overlap area has little detail) |
 | `--no-bundle-adjust` | disable global refinement (only for very large sets, if speed matters more) |
-| `--background white\|black` | fill color for uncovered areas (white by default, like paper) |
+| `--background transparent\|white\|black` | what to do with uncovered areas; `transparent` (default) writes an alpha channel, the others paint them in |
+| `--no-auto-orient` | don't rotate the finished sheet to the majority orientation |
 | `--compression lzw\|zlib\|none` | TIFF compression |
 | `--lang` | interface language; auto-detected from the system locale by default |
 | `-v` | verbose output (what matched what, how many inliers) |

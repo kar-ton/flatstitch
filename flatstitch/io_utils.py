@@ -48,9 +48,17 @@ def to_gray_for_features(img: np.ndarray) -> np.ndarray:
     return gray
 
 
-def save_tiff(path, img: np.ndarray, compression: str = "lzw") -> None:
+def save_tiff(path, img: np.ndarray, compression: str = "lzw", has_alpha: bool = False) -> None:
     """Save the composite as TIFF, preserving dtype and channel layout.
     Automatically switches to BigTIFF for very large outputs.
+
+    has_alpha marks the last channel as an alpha channel: 4-channel input
+    is written as RGBA and 2-channel input as gray+alpha. The alpha is
+    tagged UNASSALPHA (unassociated, i.e. straight/non-premultiplied),
+    which matches how the compositor produces it - RGB values are the
+    real pixel colors, not multiplied by coverage - so viewers that
+    ignore alpha entirely still show sensible colors rather than a
+    darkened image.
     """
     path = Path(path)
     if img.dtype not in (np.uint8, np.uint16):
@@ -59,16 +67,21 @@ def save_tiff(path, img: np.ndarray, compression: str = "lzw") -> None:
     if compression == "none":
         compression = None
 
-    photometric = "rgb" if (img.ndim == 3 and img.shape[2] >= 3) else "minisblack"
+    n_ch = img.shape[2] if img.ndim == 3 else 1
+    if has_alpha and n_ch in (2, 4):
+        photometric = "rgb" if n_ch == 4 else "minisblack"
+        extrasamples = "unassalpha"
+    else:
+        photometric = "rgb" if n_ch >= 3 else "minisblack"
+        extrasamples = None
+
     bigtiff = img.nbytes > _BIGTIFF_THRESHOLD_BYTES
     if bigtiff:
         logger.info(_("io.log.bigtiff"))
 
+    kwargs = dict(compression=compression, bigtiff=bigtiff, photometric=photometric)
+    if extrasamples is not None:
+        kwargs["extrasamples"] = extrasamples
+
     path.parent.mkdir(parents=True, exist_ok=True)
-    tifffile.imwrite(
-        str(path),
-        img,
-        compression=compression,
-        bigtiff=bigtiff,
-        photometric=photometric,
-    )
+    tifffile.imwrite(str(path), img, **kwargs)

@@ -12,7 +12,7 @@
   "cli.help.sharpen_power": "Netteté de la transition sur la couture (plus élevé = couture plus étroite et plus nette). Par défaut : 6.0",
   "cli.help.interpolation": "Méthode d'interpolation lors de la rotation des numérisations. cubic - net, avec un minimum de halos autour du texte/des lignes (par défaut). lanczos4 est encore plus net, mais produit des halos visibles (ringing) sur les tracés/textes très contrastés ; linear - le plus doux, sans aucun halo.",
   "cli.help.compression": "Compression du TIFF (sans perte). Par défaut : lzw",
-  "cli.help.background": "Couleur de remplissage des zones du canevas qu'aucune numérisation ne couvre (généralement de fines cales dans les coins dues à l'erreur de rotation). Par défaut : white",
+  "cli.help.background": "Remplissage des zones du canevas qu'aucune numérisation ne couvre (généralement de fines cales dans les coins dues à l'erreur de rotation). transparent (par défaut) ajoute un canal alpha, elles sont donc transparentes ; white/black les peignent.",
   "cli.help.ref_index": "Index de l'image utilisée comme point de référence fixe. Par défaut : 0",
   "cli.help.jobs": "Nombre de processus pour la mise en correspondance parallèle des paires d'images (c'est la partie qui croît en n^2 avec le nombre de numérisations). Par défaut : tous les cœurs de processeur disponibles. --jobs 1 désactive le parallélisme.",
   "cli.help.lang": "Langue de l'interface. Par défaut : détectée automatiquement à partir de la langue du système.",
@@ -21,7 +21,6 @@
   "cli.found_images": "{n} images trouvées :",
   "cli.output_default": "Aucun chemin de sortie indiqué (-o) - sera enregistré sous : {path}",
   "cli.error.prefix": "Erreur : {error}",
-
   "pipeline.error.need_two_images": "Au moins 2 images sont nécessaires pour l'assemblage.",
   "pipeline.log.loading_features": "Chargement de {n} images et recherche de caractéristiques...",
   "pipeline.log.feature_count": "  [{i}] {name} : {n} caractéristiques",
@@ -32,18 +31,14 @@
   "pipeline.log.memory_estimate": "Mémoire estimée pour le canevas : ~{mb} Mo",
   "pipeline.warning.gap_pixels": "Il y a {pixels} pixels sans aucune source dans la zone assemblée ({percent} % du canevas) - généralement de fines cales sur les bords dues à une légère rotation des numérisations. Si cela est visible sur le résultat, augmentez le chevauchement entre les numérisations voisines.",
   "pipeline.log.saved": "Enregistré : {path}",
-
   "registration.log.inliers": "  {i} <-> {j} : {n} points concordants",
   "registration.log.parallel_start": "Comparaison des paires en parallèle ({n} processus)...",
   "registration.warning.parallel_unavailable": "Traitement parallèle indisponible ({error}), poursuite en mode séquentiel...",
   "registration.log.bundle_adjust_start": "Ajustement global (bundle adjustment) : {n_images} images, {n_edges} liens...",
-
   "io.error.cannot_read": "Impossible de lire l'image : {path}",
   "io.log.bigtiff": "Le résultat est volumineux — écriture au format BigTIFF",
-
   "features.warning.no_sift": "SIFT n'est pas disponible dans cette version d'OpenCV, utilisation d'ORB à la place",
   "features.error.unknown_detector": "Détecteur de caractéristiques inconnu : {method}",
-
   "gui.window_title": "flatstitch — assembler des numérisations",
   "gui.toolbar.add_files": "Ajouter des fichiers...",
   "gui.toolbar.add_folder": "Ajouter un dossier...",
@@ -89,5 +84,9 @@
   "gui.dialog.result_folder_title": "Dossier du résultat",
   "gui.dialog.stitch_failed_title": "Impossible d'assembler les images",
   "gui.result.saved_prefix": "Enregistré :\n{names}",
-  "gui.result.preview_failed": "Terminé, mais impossible de générer un aperçu."
+  "gui.result.preview_failed": "Terminé, mais impossible de générer un aperçu.",
+  "cli.help.no_auto_orient": "Ne pas faire pivoter automatiquement la feuille finale. Par défaut, le canevas est tourné d'un multiple de 90 degrés pour que la plupart des numérisations ressortent dans l'orientation où elles ont été numérisées - utile quand une feuille a été posée de côté sur la vitre. Sans effet si toutes les numérisations concordent déjà.",
+  "pipeline.log.auto_oriented": "La plupart des numérisations étaient de côté par rapport à la référence - rotation du résultat de {degrees}°",
+  "gui.settings.auto_orient_checkbox": "Rotation automatique du résultat (90/180)",
+  "gui.background.transparent": "transparent"
 }

@@ -1,5 +1,0 @@
-#!/bin/bash
-# flatstitch GUI launcher.
-export PYTHONPATH="/opt/flatstitch${PYTHONPATH:+:$PYTHONPATH}"
-export PYTHONDONTWRITEBYTECODE=1
-exec /opt/flatstitch/venv/bin/python3 /opt/flatstitch/flatstitch_gui.py "$@"
