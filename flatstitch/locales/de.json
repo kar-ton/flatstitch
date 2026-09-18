@@ -12,7 +12,7 @@
   "cli.help.sharpen_power": "Schärfe des Übergangs an der Naht (höher = schmalere, schärfere Naht). Standard: 6.0",
   "cli.help.interpolation": "Interpolationsmethode beim Drehen der Scans. cubic - scharf, mit minimalen Rändern um Text/Linien (Standard). lanczos4 ist noch schärfer, erzeugt aber sichtbare Ringing-Artefakte bei kontrastreicher Strichgrafik/Text; linear - am weichsten, ganz ohne Ringing.",
   "cli.help.compression": "TIFF-Kompression (verlustfrei). Standard: lzw",
-  "cli.help.background": "Füllfarbe für Leinwandbereiche, die kein Scan abdeckt (meist nur dünne Keile in den Ecken durch Rotationsfehler). Standard: white",
+  "cli.help.background": "Füllung für Leinwandbereiche, die kein Scan abdeckt (meist nur dünne Keile in den Ecken durch Rotationsfehler). transparent (Standard) schreibt einen Alphakanal, sie werden also durchsichtig; white/black füllen sie stattdessen farbig.",
   "cli.help.ref_index": "Index des Bildes, das als fester Bezugspunkt dient. Standard: 0",
   "cli.help.jobs": "Anzahl der Prozesse für den parallelen paarweisen Bildabgleich (dieser Teil wächst mit n^2 zur Anzahl der Scans). Standard: alle verfügbaren CPU-Kerne. --jobs 1 deaktiviert die Parallelisierung.",
   "cli.help.lang": "Sprache der Oberfläche. Standard: automatisch anhand der Systemsprache erkannt.",
@@ -21,7 +21,6 @@
   "cli.found_images": "{n} Bilder gefunden:",
   "cli.output_default": "Kein Ausgabepfad angegeben (-o) - wird gespeichert als: {path}",
   "cli.error.prefix": "Fehler: {error}",
-
   "pipeline.error.need_two_images": "Es werden mindestens 2 Bilder zum Zusammenfügen benötigt.",
   "pipeline.log.loading_features": "Lade {n} Bilder und suche nach Merkmalen...",
   "pipeline.log.feature_count": "  [{i}] {name}: {n} Merkmale",
@@ -32,18 +31,14 @@
   "pipeline.log.memory_estimate": "Geschätzter Speicherbedarf für die Leinwand: ~{mb} MB",
   "pipeline.warning.gap_pixels": "Innerhalb des zusammengefügten Bereichs gibt es {pixels} Pixel ohne jede Quelle ({percent}% der Leinwand) - meist dünne Keile an den Rändern durch eine leichte Scan-Rotation. Falls dies im Ergebnis sichtbar ist, erhöhen Sie die Überlappung benachbarter Scans.",
   "pipeline.log.saved": "Gespeichert: {path}",
-
   "registration.log.inliers": "  {i} <-> {j}: {n} Inlier",
   "registration.log.parallel_start": "Vergleiche Paare parallel ({n} Prozesse)...",
   "registration.warning.parallel_unavailable": "Parallelverarbeitung nicht verfügbar ({error}), fahre sequenziell fort...",
   "registration.log.bundle_adjust_start": "Globale Verfeinerung (Bundle Adjustment): {n_images} Bilder, {n_edges} Verbindungen...",
-
   "io.error.cannot_read": "Bild konnte nicht gelesen werden: {path}",
   "io.log.bigtiff": "Ergebnis ist groß — Speicherung im BigTIFF-Format",
-
   "features.warning.no_sift": "SIFT ist in dieser OpenCV-Version nicht verfügbar, verwende stattdessen ORB",
   "features.error.unknown_detector": "Unbekannter Merkmalsdetektor: {method}",
-
   "gui.window_title": "flatstitch — Scans zusammenfügen",
   "gui.toolbar.add_files": "Dateien hinzufügen...",
   "gui.toolbar.add_folder": "Ordner hinzufügen...",
@@ -89,5 +84,9 @@
   "gui.dialog.result_folder_title": "Ergebnisordner",
   "gui.dialog.stitch_failed_title": "Bilder konnten nicht zusammengefügt werden",
   "gui.result.saved_prefix": "Gespeichert:\n{names}",
-  "gui.result.preview_failed": "Fertig, aber die Vorschau konnte nicht erstellt werden."
+  "gui.result.preview_failed": "Fertig, aber die Vorschau konnte nicht erstellt werden.",
+  "cli.help.no_auto_orient": "Das fertige Blatt nicht automatisch drehen. Standardmäßig wird die Leinwand um ein Vielfaches von 90 Grad gedreht, damit die meisten Scans so herauskommen, wie sie gescannt wurden - nützlich, wenn ein Blatt seitlich auf dem Glas lag. Ohne Wirkung, wenn alle Scans schon übereinstimmen.",
+  "pipeline.log.auto_oriented": "Die meisten Scans lagen gegenüber dem Referenzscan seitlich - das Ergebnis wird um {degrees}° gedreht",
+  "gui.settings.auto_orient_checkbox": "Ergebnis automatisch drehen (90/180)",
+  "gui.background.transparent": "transparent"
 }

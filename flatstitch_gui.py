@@ -190,6 +190,7 @@ class FlatstitchApp:
             detector=self.detector_var.get(),
             background=self.background_var.get(),
             bundle=self.bundle_var.get(),
+            auto_orient=self.auto_orient_var.get(),
             adv_visible=self.adv_visible.get(),
             downscale=self.downscale_var.get(),
             min_inliers=self.min_inliers_var.get(),
@@ -209,7 +210,9 @@ class FlatstitchApp:
 
         self.detector_var.set(saved["detector"])
         self.background_var.set(saved["background"])
+        self.bg_box.set(self._bg_display[self._bg_values.index(saved["background"])])
         self.bundle_var.set(saved["bundle"])
+        self.auto_orient_var.set(saved["auto_orient"])
         self.downscale_var.set(saved["downscale"])
         self.min_inliers_var.set(saved["min_inliers"])
         self.sharpen_var.set(saved["sharpen"])
@@ -272,7 +275,8 @@ class FlatstitchApp:
         frame.pack(fill="x")
 
         self.detector_var = tk.StringVar(value="sift")
-        self.background_var = tk.StringVar(value="white")
+        self.background_var = tk.StringVar(value="transparent")
+        self.auto_orient_var = tk.BooleanVar(value=True)
         self.bundle_var = tk.BooleanVar(value=True)
         self.language_var = tk.StringVar(value=i18n.current_language())
 
@@ -281,18 +285,31 @@ class FlatstitchApp:
                      width=6, state="readonly").grid(row=0, column=1, padx=(4, 16))
 
         ttk.Label(frame, text=_("gui.settings.background_label")).grid(row=0, column=2, sticky="w")
-        ttk.Combobox(frame, textvariable=self.background_var, values=["white", "black"],
-                     width=6, state="readonly").grid(row=0, column=3, padx=(4, 16))
+        # The combobox shows a translated label but the pipeline needs the
+        # canonical value, so keep a display<->value map instead of passing
+        # whatever text happens to be on screen.
+        self._bg_values = ["transparent", "white", "black"]
+        self._bg_display = [_("gui.background.transparent"), "white", "black"]
+        self._bg_value_by_display = dict(zip(self._bg_display, self._bg_values))
+        self.bg_box = ttk.Combobox(frame, values=self._bg_display, width=12, state="readonly")
+        self.bg_box.set(self._bg_display[self._bg_values.index(self.background_var.get())])
+        self.bg_box.grid(row=0, column=3, padx=(4, 16))
+        self.bg_box.bind("<<ComboboxSelected>>", lambda e: self.background_var.set(
+            self._bg_value_by_display[self.bg_box.get()]))
 
         ttk.Checkbutton(frame, text=_("gui.settings.bundle_checkbox"),
-                         variable=self.bundle_var).grid(row=0, column=4, padx=(0, 16))
+                         variable=self.bundle_var).grid(row=1, column=0, columnspan=2,
+                                                         sticky="w", pady=(4, 0))
+        ttk.Checkbutton(frame, text=_("gui.settings.auto_orient_checkbox"),
+                         variable=self.auto_orient_var).grid(row=1, column=2, columnspan=2,
+                                                              sticky="w", padx=(0, 12), pady=(4, 0))
 
         self.adv_visible = tk.BooleanVar(value=False)
         self.adv_toggle = ttk.Checkbutton(
             frame, text=_("gui.settings.advanced_toggle"), variable=self.adv_visible,
             command=self._toggle_advanced, style="Toolbutton",
         )
-        self.adv_toggle.grid(row=0, column=5, padx=(0, 16))
+        self.adv_toggle.grid(row=1, column=4, sticky="w", pady=(4, 0))
 
         self.adv_frame = ttk.Frame(self.root, padding=(10, 0, 10, 6))
 
@@ -517,6 +534,7 @@ class FlatstitchApp:
             interpolation=self.interpolation_var.get(),
             compression=self.compression_var.get(),
             background=self.background_var.get(),
+            auto_orient=self.auto_orient_var.get(),
             n_jobs=self.jobs_var.get(),
         )
 

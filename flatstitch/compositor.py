@@ -194,3 +194,20 @@ def crop_to_content(img: np.ndarray, covered: np.ndarray):
         return img, covered
     x0, y0, x1, y1 = bbox
     return img[y0:y1, x0:x1], covered[y0:y1, x0:x1]
+
+
+def attach_alpha(img: np.ndarray, covered: np.ndarray, dtype) -> np.ndarray:
+    """Append an alpha channel built from the coverage mask: fully opaque
+    where at least one scan contributed, fully transparent elsewhere.
+
+    Grayscale input becomes 2-channel (gray+alpha), color becomes
+    4-channel (RGBA). The alpha is binary rather than feathered because
+    the tile masks themselves are binary (warped with INTER_NEAREST), so
+    there is no partial coverage to represent - and a hard edge is what
+    you want when the transparent region is just the ragged outline of
+    the stitched sheet.
+    """
+    opaque = np.iinfo(dtype).max
+    alpha = np.where(covered, opaque, 0).astype(dtype)
+    # dstack handles both a 2-D grayscale plane and a 3-D color stack.
+    return np.dstack([img, alpha])

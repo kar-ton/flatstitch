@@ -12,7 +12,7 @@
   "cli.help.sharpen_power": "つなぎ目の遷移の鋭さ（値が大きいほど、つなぎ目が狭く鮮明になります）。既定値: 6.0",
   "cli.help.interpolation": "スキャンを回転させる際の補間方法。cubic - 鮮明で、文字や線の周りのハロー（にじみ）が最小限（既定値）。lanczos4 はさらに鮮明ですが、コントラストの高い線画や文字で目立つリンギング（輪郭のにじみ）が発生します。linear - 最も柔らかく、リンギングは発生しません。",
   "cli.help.compression": "TIFFの圧縮方式（可逆）。既定値: lzw",
-  "cli.help.background": "どのスキャンにも覆われていないキャンバス領域の塗りつぶし色（通常は回転誤差による角の細いくさび状の部分のみ）。既定値: white（白）",
+  "cli.help.background": "どのスキャンにも覆われていないキャンバス領域の塗りつぶし方法（通常は回転誤差による角の細いくさび状の部分のみ）。transparent（既定値）はアルファチャンネルを書き込むため透過します。white/black は色で塗りつぶします。",
   "cli.help.ref_index": "固定の基準点として使用する画像のインデックス。既定値: 0",
   "cli.help.jobs": "画像ペアの並列マッチングに使用するプロセス数（スキャン枚数の増加に伴い n^2 で増える部分です）。既定値: 利用可能なすべてのCPUコア。--jobs 1 を指定すると並列処理を無効にします。",
   "cli.help.lang": "インターフェースの言語。既定値: システムの言語から自動検出。",
@@ -21,7 +21,6 @@
   "cli.found_images": "{n} 枚の画像が見つかりました:",
   "cli.output_default": "出力パス（-o）が指定されていません - 次の場所に保存します: {path}",
   "cli.error.prefix": "エラー: {error}",
-
   "pipeline.error.need_two_images": "結合には少なくとも2枚の画像が必要です。",
   "pipeline.log.loading_features": "{n} 枚の画像を読み込み、特徴を検出しています...",
   "pipeline.log.feature_count": "  [{i}] {name}: 特徴点 {n} 個",
@@ -32,18 +31,14 @@
   "pipeline.log.memory_estimate": "キャンバスの推定メモリ使用量: 約 {mb} MB",
   "pipeline.warning.gap_pixels": "結合領域内に、どの元画像にも属さないピクセルが {pixels} 個あります（キャンバスの {percent}%）- 通常はスキャンのわずかな回転による端の細いくさび状の部分です。結果でこれが目立つ場合は、隣接するスキャン同士の重なりを増やしてください。",
   "pipeline.log.saved": "保存しました: {path}",
-
   "registration.log.inliers": "  {i} <-> {j}: インライア {n} 個",
   "registration.log.parallel_start": "ペアを並列に比較しています（{n} プロセス）...",
   "registration.warning.parallel_unavailable": "並列処理を利用できません（{error}）。順次処理を続行します...",
   "registration.log.bundle_adjust_start": "全体最適化（バンドル調整）: 画像 {n_images} 枚、リンク {n_edges} 件...",
-
   "io.error.cannot_read": "画像を読み込めませんでした: {path}",
   "io.log.bigtiff": "結果が大きいため、BigTIFF形式で書き込みます",
-
   "features.warning.no_sift": "このOpenCVビルドではSIFTを利用できないため、代わりにORBを使用します",
   "features.error.unknown_detector": "不明な特徴検出器です: {method}",
-
   "gui.window_title": "flatstitch — スキャン結合",
   "gui.toolbar.add_files": "ファイルを追加...",
   "gui.toolbar.add_folder": "フォルダーを追加...",
@@ -89,5 +84,9 @@
   "gui.dialog.result_folder_title": "結果のフォルダー",
   "gui.dialog.stitch_failed_title": "画像を結合できませんでした",
   "gui.result.saved_prefix": "保存しました:\n{names}",
-  "gui.result.preview_failed": "完了しましたが、プレビューを作成できませんでした。"
+  "gui.result.preview_failed": "完了しましたが、プレビューを作成できませんでした。",
+  "cli.help.no_auto_orient": "完成した用紙を自動回転しません。既定では、大半のスキャンがスキャン時と同じ向きになるよう、キャンバスを90度単位で回転します（用紙をガラス面に横向きに置いてしまった場合に便利）。すべてのスキャンの向きが既に揃っている場合、この設定は何も影響しません。",
+  "pipeline.log.auto_oriented": "大半のスキャンが基準スキャンに対して横向きでした - 結果を{degrees}度回転します",
+  "gui.settings.auto_orient_checkbox": "結果を自動回転（90/180）",
+  "gui.background.transparent": "透明"
 }

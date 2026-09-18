@@ -12,7 +12,7 @@
   "cli.help.sharpen_power": "Nitidez de la transición en la costura (mayor = costura más estrecha y nítida). Por defecto: 6.0",
   "cli.help.interpolation": "Método de interpolación al rotar los escaneos. cubic - nítido, con un mínimo de halos alrededor de texto/líneas (por defecto). lanczos4 es aún más nítido, pero produce halos visibles (ringing) en arte lineal/texto de alto contraste; linear - el más suave, sin ningún halo.",
   "cli.help.compression": "Compresión del TIFF (sin pérdida). Por defecto: lzw",
-  "cli.help.background": "Color de relleno para las zonas del lienzo que ningún escaneo cubre (normalmente solo finas cuñas en las esquinas por el error de rotación). Por defecto: white",
+  "cli.help.background": "Relleno de las zonas del lienzo que ningún escaneo cubre (normalmente solo finas cuñas en las esquinas por el error de rotación). transparent (por defecto) añade un canal alfa, por lo que quedan transparentes; white/black las pintan.",
   "cli.help.ref_index": "Índice de la imagen usada como punto de referencia fijo. Por defecto: 0",
   "cli.help.jobs": "Número de procesos para el emparejamiento paralelo de pares de imágenes (esta es la parte que crece como n^2 con el número de escaneos). Por defecto: todos los núcleos de CPU disponibles. --jobs 1 desactiva el paralelismo.",
   "cli.help.lang": "Idioma de la interfaz. Por defecto: detectado automáticamente según el idioma del sistema.",
@@ -21,7 +21,6 @@
   "cli.found_images": "Se encontraron {n} imágenes:",
   "cli.output_default": "No se indicó ruta de salida (-o) - se guardará como: {path}",
   "cli.error.prefix": "Error: {error}",
-
   "pipeline.error.need_two_images": "Se necesitan al menos 2 imágenes para unir.",
   "pipeline.log.loading_features": "Cargando {n} imágenes y buscando características...",
   "pipeline.log.feature_count": "  [{i}] {name}: {n} características",
@@ -32,18 +31,14 @@
   "pipeline.log.memory_estimate": "Memoria estimada para el lienzo: ~{mb} MB",
   "pipeline.warning.gap_pixels": "Hay {pixels} píxeles sin ninguna fuente dentro del área unida ({percent}% del lienzo) - normalmente son finas cuñas en los bordes por una ligera rotación del escaneo. Si esto es visible en el resultado, aumente la superposición entre escaneos vecinos.",
   "pipeline.log.saved": "Guardado: {path}",
-
   "registration.log.inliers": "  {i} <-> {j}: {n} coincidencias válidas",
   "registration.log.parallel_start": "Comparando pares en paralelo ({n} procesos)...",
   "registration.warning.parallel_unavailable": "Procesamiento paralelo no disponible ({error}), continuando de forma secuencial...",
   "registration.log.bundle_adjust_start": "Refinamiento global (bundle adjustment): {n_images} imágenes, {n_edges} enlaces...",
-
   "io.error.cannot_read": "No se pudo leer la imagen: {path}",
   "io.log.bigtiff": "El resultado es grande — se escribirá en formato BigTIFF",
-
   "features.warning.no_sift": "SIFT no está disponible en esta compilación de OpenCV; se usará ORB",
   "features.error.unknown_detector": "Detector de características desconocido: {method}",
-
   "gui.window_title": "flatstitch — unir escaneos",
   "gui.toolbar.add_files": "Añadir archivos...",
   "gui.toolbar.add_folder": "Añadir carpeta...",
@@ -89,5 +84,9 @@
   "gui.dialog.result_folder_title": "Carpeta del resultado",
   "gui.dialog.stitch_failed_title": "No se pudieron unir las imágenes",
   "gui.result.saved_prefix": "Guardado:\n{names}",
-  "gui.result.preview_failed": "Listo, pero no se pudo generar la vista previa."
+  "gui.result.preview_failed": "Listo, pero no se pudo generar la vista previa.",
+  "cli.help.no_auto_orient": "No girar automáticamente la hoja final. Por defecto el lienzo se gira un múltiplo de 90 grados para que la mayoría de los escaneos queden en la orientación en que se escanearon, útil cuando una hoja se colocó de lado en el cristal. No tiene efecto si todos los escaneos ya coinciden.",
+  "pipeline.log.auto_oriented": "La mayoría de los escaneos estaban de lado respecto al de referencia: girando el resultado {degrees}°",
+  "gui.settings.auto_orient_checkbox": "Girar resultado automáticamente (90/180)",
+  "gui.background.transparent": "transparente"
 }

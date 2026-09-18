@@ -21,3 +21,4 @@ screenshot_*.png
 # Anything a user might stitch while testing locally
 /scans/
 *.tiff
+deb/

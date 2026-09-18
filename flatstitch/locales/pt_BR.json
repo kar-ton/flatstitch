@@ -12,7 +12,7 @@
   "cli.help.sharpen_power": "Nitidez da transição na costura (maior = costura mais estreita e nítida). Padrão: 6.0",
   "cli.help.interpolation": "Método de interpolação ao rotacionar as digitalizações. cubic - nítido, com halos mínimos ao redor de texto/linhas (padrão). lanczos4 é ainda mais nítido, mas produz halos visíveis (ringing) em arte de linha/texto de alto contraste; linear - o mais suave, sem nenhum halo.",
   "cli.help.compression": "Compressão do TIFF (sem perdas). Padrão: lzw",
-  "cli.help.background": "Cor de preenchimento para áreas da tela que nenhuma digitalização cobre (geralmente apenas finas cunhas nos cantos devido ao erro de rotação). Padrão: white",
+  "cli.help.background": "Preenchimento para áreas da tela que nenhuma digitalização cobre (geralmente apenas finas cunhas nos cantos por erro de rotação). transparent (padrão) grava um canal alfa, então ficam transparentes; white/black as pintam.",
   "cli.help.ref_index": "Índice da imagem usada como ponto de referência fixo. Padrão: 0",
   "cli.help.jobs": "Número de processos para a correspondência paralela de pares de imagens (esta é a parte que cresce como n^2 com o número de digitalizações). Padrão: todos os núcleos de CPU disponíveis. --jobs 1 desativa o paralelismo.",
   "cli.help.lang": "Idioma da interface. Padrão: detectado automaticamente a partir do idioma do sistema.",
@@ -21,7 +21,6 @@
   "cli.found_images": "{n} imagens encontradas:",
   "cli.output_default": "Nenhum caminho de saída informado (-o) - será salvo como: {path}",
   "cli.error.prefix": "Erro: {error}",
-
   "pipeline.error.need_two_images": "São necessárias pelo menos 2 imagens para unir.",
   "pipeline.log.loading_features": "Carregando {n} imagens e buscando características...",
   "pipeline.log.feature_count": "  [{i}] {name}: {n} características",
@@ -32,18 +31,14 @@
   "pipeline.log.memory_estimate": "Memória estimada para a tela: ~{mb} MB",
   "pipeline.warning.gap_pixels": "Há {pixels} pixels sem nenhuma fonte dentro da área unida ({percent}% da tela) - geralmente finas cunhas nas bordas devido a uma leve rotação da digitalização. Se isso for visível no resultado, aumente a sobreposição entre digitalizações vizinhas.",
   "pipeline.log.saved": "Salvo: {path}",
-
   "registration.log.inliers": "  {i} <-> {j}: {n} inliers",
   "registration.log.parallel_start": "Comparando pares em paralelo ({n} processos)...",
   "registration.warning.parallel_unavailable": "Processamento paralelo indisponível ({error}), continuando sequencialmente...",
   "registration.log.bundle_adjust_start": "Refinamento global (bundle adjustment): {n_images} imagens, {n_edges} conexões...",
-
   "io.error.cannot_read": "Não foi possível ler a imagem: {path}",
   "io.log.bigtiff": "O resultado é grande — gravando no formato BigTIFF",
-
   "features.warning.no_sift": "SIFT não está disponível nesta build do OpenCV; usando ORB",
   "features.error.unknown_detector": "Detector de características desconhecido: {method}",
-
   "gui.window_title": "flatstitch — unir digitalizações",
   "gui.toolbar.add_files": "Adicionar arquivos...",
   "gui.toolbar.add_folder": "Adicionar pasta...",
@@ -89,5 +84,9 @@
   "gui.dialog.result_folder_title": "Pasta do resultado",
   "gui.dialog.stitch_failed_title": "Não foi possível unir as imagens",
   "gui.result.saved_prefix": "Salvo:\n{names}",
-  "gui.result.preview_failed": "Concluído, mas não foi possível gerar a pré-visualização."
+  "gui.result.preview_failed": "Concluído, mas não foi possível gerar a pré-visualização.",
+  "cli.help.no_auto_orient": "Não girar automaticamente a folha final. Por padrão a tela é girada em um múltiplo de 90 graus para que a maioria das digitalizações saia na orientação em que foram digitalizadas - útil quando uma folha foi colocada de lado no vidro. Sem efeito se todas as digitalizações já concordam.",
+  "pipeline.log.auto_oriented": "A maioria das digitalizações estava de lado em relação à de referência - girando o resultado em {degrees}°",
+  "gui.settings.auto_orient_checkbox": "Girar resultado automaticamente (90/180)",
+  "gui.background.transparent": "transparente"
 }

@@ -434,3 +434,63 @@ def bundle_adjust(
     for k in order:
         refined[k] = pose_from_params(result.x, k)
     return refined
+
+
+# ---------------------------------------------------------------------------
+# Output orientation
+# ---------------------------------------------------------------------------
+
+def snap_output_orientation(poses: dict, group: list[int]):
+    """Rotate every pose by a common multiple of 90 degrees so that the
+    largest number of tiles end up in the same orientation they were
+    scanned in.
+
+    Why this is needed: the layout is built relative to one reference
+    tile, so the whole canvas inherits that tile's orientation. Feature
+    matching itself handles a sideways scan perfectly well (SIFT/ORB
+    descriptors are rotation-invariant, and the rigid model can express
+    any angle), but if the reference tile happens to be the one that was
+    placed sideways on the glass, every other tile gets rotated to match
+    IT and the finished sheet comes out sideways.
+
+    The heuristic: most sheets are placed upright and the rotated ones
+    are the exception, so the majority orientation among the tiles is
+    almost certainly the document's true orientation. When all tiles
+    agree (the ordinary case) the chosen angle is 0 and nothing changes
+    at all.
+
+    Only exact multiples of 90 degrees are applied, so this adds no
+    resampling error whatsoever: each tile is warped exactly once either
+    way, just with 90/180/270 added to its rotation. Ties are broken
+    toward 0 (keep the reference's orientation), which keeps the result
+    predictable.
+
+    Returns (new_poses, applied_degrees).
+    """
+    if not group:
+        return poses, 0
+
+    # Bucket each tile's pose rotation into the nearest quarter turn.
+    counts = {0: 0, 90: 0, 180: 0, 270: 0}
+    for idx in group:
+        if idx not in poses:
+            continue
+        r, _t = poses[idx]
+        deg = np.degrees(np.arctan2(r[1, 0], r[0, 0]))
+        q = int(round(deg / 90.0)) % 4
+        counts[q * 90] += 1
+
+    # Majority orientation wins; on a tie, 0 wins so an already-correct
+    # layout is left completely untouched.
+    best = max(counts, key=lambda d: (counts[d], 1 if d == 0 else 0))
+    if best == 0:
+        return poses, 0
+
+    phi = np.radians(-best)
+    c, s = np.cos(phi), np.sin(phi)
+    r_fix = np.array([[c, -s], [s, c]])
+
+    new_poses = {}
+    for idx, (r, t) in poses.items():
+        new_poses[idx] = (r_fix @ r, r_fix @ t)
+    return new_poses, -best % 360

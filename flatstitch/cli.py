@@ -59,8 +59,10 @@ def build_parser() -> argparse.ArgumentParser:
                     default="cubic", help=_("cli.help.interpolation"))
     p.add_argument("--compression", choices=["lzw", "zlib", "none"], default="lzw",
                     help=_("cli.help.compression"))
-    p.add_argument("--background", choices=["white", "black"], default="white",
-                    help=_("cli.help.background"))
+    p.add_argument("--background", choices=["transparent", "white", "black"],
+                    default="transparent", help=_("cli.help.background"))
+    p.add_argument("--no-auto-orient", dest="auto_orient", action="store_false",
+                    help=_("cli.help.no_auto_orient"))
     p.add_argument("--ref-index", type=int, default=0, help=_("cli.help.ref_index"))
     p.add_argument("--jobs", type=int, default=None, help=_("cli.help.jobs"))
     p.add_argument("--lang", choices=sorted(i18n.SUPPORTED_LANGUAGES), default=None,
@@ -123,6 +125,7 @@ def main(argv=None) -> int:
             compression=args.compression,
             ref_index=args.ref_index,
             background=args.background,
+            auto_orient=args.auto_orient,
             n_jobs=n_jobs,
         )
     except pipeline.StitchError as e:
