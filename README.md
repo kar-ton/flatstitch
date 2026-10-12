@@ -9,9 +9,13 @@ scans**, not photo panoramas.
 
 There are two ways to run it, both built on the same core (the
 `flatstitch/` package):
-- **`flatstitch-gui.sh`** — a full graphical interface: add scans (button
-  or drag-and-drop), tune the settings, hit "Stitch" and watch progress
-  and the result right in the window.
+- **`flatstitch-gui`** (`flatstitch-gui.sh` from a source checkout) — a
+  full graphical interface: add scans (button or drag-and-drop), tune the
+  settings, hit "Stitch" and watch progress and the result right in the
+  window. It **adapts to your desktop**: native GTK3 on GNOME, Cinnamon,
+  XFCE, MATE and LXDE, native Qt5 on KDE Plasma and LXQt, and a
+  Tk interface everywhere else (see
+  [Choosing the interface](#choosing-the-graphical-interface)).
 - **`flatstitch.sh`** — a command-line version, handy for scripting and
   batch processing.
 
@@ -41,10 +45,10 @@ ruins attempts to stitch scans with general-purpose panorama software.
 ## Installing the .deb package (recommended)
 
 The simplest way on Linux Mint / Ubuntu is to install the prebuilt
-`flatstitch_1.0.1-1_all.deb` package:
+`flatstitch_1.1.0-1_all.deb` package:
 
 ```bash
-sudo apt install ./flatstitch_1.0.1-1_all.deb
+sudo apt install ./flatstitch_1.1.0-1_all.deb
 ```
 
 This puts `flatstitch` (CLI) and `flatstitch-gui` (GUI) on your PATH,
@@ -62,7 +66,7 @@ if the install genuinely fails, the most reliable fix is to install
 directly with dpkg instead:
 
 ```bash
-sudo dpkg -i ./flatstitch_1.0.1-1_all.deb
+sudo dpkg -i ./flatstitch_1.1.0-1_all.deb
 sudo apt-get install -f -y   # pulls in any missing dependencies
 ```
 
@@ -95,14 +99,45 @@ icon after logging back in, run `sudo update-icon-caches
 
 ### Building the .deb from source
 
-If you change the code and want to rebuild the package, the layout for
-`dpkg-deb` lives in `deb/flatstitch_1.0.1-1_all/`. After making edits:
+If you change the code and want to rebuild the package, run the helper
+script from the repository root. It first copies the current sources into
+the packaging scaffold in `deb/flatstitch_1.1.0-1_all/` (so the package
+can't drift out of sync with the code), regenerates the checksums and
+builds the package:
 
 ```bash
 sudo apt install fakeroot        # once, if you don't have it
-cd deb
-fakeroot dpkg-deb --build --root-owner-group flatstitch_1.0.1-1_all
+./build-deb.sh                   # -> flatstitch_1.1.0-1_all.deb
 ```
+
+## Choosing the graphical interface
+
+`flatstitch-gui` looks at the running desktop (`XDG_CURRENT_DESKTOP`, with
+`XDG_SESSION_DESKTOP` / `DESKTOP_SESSION` as fallbacks) and starts the
+matching interface:
+
+| Desktop | Interface | System package |
+|---|---|---|
+| GNOME, Cinnamon, XFCE, MATE, LXDE, Budgie, Pantheon, Unity | GTK 3 | `python3-gi`, `gir1.2-gtk-3.0` |
+| KDE Plasma, LXQt, Deepin | Qt 5 | `python3-pyqt5` |
+| anything else (sway, i3, COSMIC, unknown, ...) | Tk (the original interface) | `python3-tk` |
+
+If the preferred toolkit's bindings are not installed, it falls back to
+the other native one, and finally to Tk, so the GUI always starts. The
+`.deb` installs GTK support by default (`Recommends`) and Tk as a hard
+dependency; for KDE/LXQt add Qt with `sudo apt install python3-pyqt5`.
+
+All three interfaces offer the same features and share the same settings
+and language choice (`~/.config/flatstitch/config.json`). Override the
+automatic choice if you prefer another one:
+
+```bash
+flatstitch-gui --gui qt            # gtk | qt | tk | auto
+FLATSTITCH_GUI=tk flatstitch-gui   # same, via the environment
+flatstitch-gui --detect            # just print what would be used
+```
+
+or set `"gui": "gtk"` in `~/.config/flatstitch/config.json`.
 
 ## Installing from source (without the .deb)
 
@@ -119,12 +154,23 @@ pip install -r requirements.txt
 pip install --break-system-packages -r requirements.txt
 ```
 
-The GUI additionally needs the system Tk package (not installable via
-pip):
+The GUI additionally needs a system toolkit package (not installable via
+pip) — whichever matches your desktop, see
+[Choosing the interface](#choosing-the-graphical-interface):
 
 ```bash
-sudo apt install python3-tk
+sudo apt install python3-gi gir1.2-gtk-3.0   # GTK  (GNOME, Cinnamon, XFCE, MATE, LXDE)
+sudo apt install python3-pyqt5               # Qt   (KDE Plasma, LXQt)
+sudo apt install python3-tk                  # Tk   (everything else / fallback)
 ```
+
+The GTK and Qt interfaces run under the *system* Python (that is where
+the distribution's bindings live) and call the Python that has
+OpenCV/NumPy installed — `venv/` next to the sources if it exists,
+otherwise the current interpreter — for the actual work. In a source
+checkout, either create `venv/` there
+(`python3 -m venv venv && venv/bin/pip install -r requirements.txt`) or
+install the requirements into the system Python.
 
 Drag-and-drop in the GUI is optional (the `tkinterdnd2` package from
 requirements.txt). Without it the GUI still works fully, just without
@@ -399,7 +445,7 @@ short key per UI string. To add a new language:
    print(set(en)-set(x), set(x)-set(en))"` should print two empty sets.
 
 Right-to-left languages (Arabic, Hebrew, etc.) aren't included yet -
-Tkinter has no built-in RTL layout mirroring, so a good RTL experience
+the Tk interface has no built-in RTL layout mirroring, so a good RTL experience
 needs some extra UI work beyond just translating strings. Contributions
 welcome.
 

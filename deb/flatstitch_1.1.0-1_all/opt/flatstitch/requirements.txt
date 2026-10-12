@@ -1,0 +1,12 @@
+opencv-python-headless>=4.5
+numpy>=1.23
+scipy>=1.9
+tifffile>=2023.1.1
+imagecodecs>=2023.1.23
+
+# Needed for the GUI only (flatstitch_gui.py):
+Pillow>=9.0
+
+# Optional, GUI only: enables drag-and-drop of files onto the window.
+# Without it the GUI still works fully via the "Додати файли..." button.
+tkinterdnd2>=0.3.0

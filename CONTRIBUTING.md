@@ -10,7 +10,7 @@ copy `flatstitch/locales/en.json` to a new `<code>.json`, translate the
 values (not the keys, and not the `{placeholders}`), and register the
 language in `flatstitch/i18n.py`.
 
-A quick way to sanity-check a translation file has no missing/extra keys:
+Translations are shared by all three interfaces. A quick way to sanity-check a translation file has no missing/extra keys:
 
 ```bash
 python3 -c "
@@ -28,7 +28,13 @@ Both sets should print empty.
 
 - `flatstitch/` — the core library (feature matching, registration,
   compositing, TIFF I/O) plus the CLI (`cli.py`).
-- `flatstitch_gui.py` — the Tkinter GUI, built on the same core.
+- `flatstitch_launcher.py` — picks the GUI for the running desktop
+  (`--detect` shows the choice, `--gui gtk|qt|tk` overrides it).
+- `flatstitch_gtk.py` / `flatstitch_qt.py` — the native GTK3 and Qt5
+  interfaces. They run under the system Python and drive the stitching
+  through `flatstitch_native_common.py` (subprocess bridge to the venv).
+- `flatstitch_gui.py` — the Tkinter GUI (fallback for other desktops).
+- `build-deb.sh` — syncs the sources into `deb/` and builds the `.deb`.
 - `flatstitch/locales/` — translation catalogs (see above).
 - `deb/` — packaging scaffold for the `.deb` (see the README's
   "Building the .deb from source" section).

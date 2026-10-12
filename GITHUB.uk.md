@@ -17,16 +17,13 @@
 - `.gitignore` — уже виключає `__pycache__`, `*.deb`, `*.tiff`,
   скриншоти, тимчасові файли редакторів
 
-**Перед публікацією замініть у двох місцях заглушку автора на свої дані:**
-
-```bash
-grep -rn "you@example.com" .
-```
-
-Знайде `LICENSE` (рядок Copyright), `deb/.../DEBIAN/control` (Maintainer)
-і `deb/.../usr/share/doc/flatstitch/copyright`. Вкажіть там своє ім'я та
-e-mail (або GitHub-адресу вигляду `nickname@users.noreply.github.com`,
-якщо не хочете світити справжню пошту).
+**Автора вже вказано: `kar_ton <p.nikita.u@gmail.com>`** — у `LICENSE`
+(рядок Copyright), `deb/.../DEBIAN/control` (Maintainer),
+`deb/.../usr/share/doc/flatstitch/copyright` і в журналі змін пакета.
+Якщо не хочете світити справжню пошту в публічному репозиторії, замініть
+її на адресу вигляду `nickname@users.noreply.github.com` (перевірити, де
+вона є: `grep -rn "p.nikita.u@gmail.com" .`) і перезберіть пакет
+командою `./build-deb.sh`.
 
 ---
 
@@ -210,12 +207,78 @@ git push
 (`Version:`) і в `flatstitch/__init__.py` (`__version__`), додайте запис
 у `deb/.../usr/share/doc/flatstitch/changelog.Debian.gz`, перезберіть
 пакет (див. розділ «Building the .deb from source» у README) і створіть
-новий Release із тегом `v1.0.1`.
+новий Release із тегом нової версії (наприклад `v1.1.0`).
 
 > Збірку пакета з нуля перевірено саме цим шляхом: свіжий `git clone` →
 > `fakeroot dpkg-deb --build` → `apt install ./...deb` → робочий
 > `flatstitch`. Файл `DEBIAN/md5sums` навмисно не в репозиторії (він
 > генерований), і на збірку це не впливає.
+
+---
+
+## 8. Оновлення вже опублікованого репозиторію до 1.1.0
+
+Версія 1.1.0 додає рідні інтерфейси GTK3 (GNOME, Cinnamon, XFCE, MATE,
+LXDE) і Qt5 (KDE Plasma, LXQt) з автовибором за оболонкою; для решти
+оболонок лишається Tk. Репозиторій на GitHub уже існує, тож потрібні
+лише чотири кроки.
+
+**1. Синхронізуйте локальну теку з новим архівом.** Нові файли треба
+покласти поверх старих, а видалені - прибрати, тому найнадійніше
+замінити весь вміст, крім `.git`:
+
+```bash
+cd ~/Documents/flatstitch/flatstitch        # ваш локальний репозиторій
+find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+unzip -q ~/Downloads/flatstitch.zip -d /tmp/flatstitch_new
+cp -a /tmp/flatstitch_new/flatstitch/. .
+rm -rf /tmp/flatstitch_new
+```
+
+(Підставте свої шляхи. Якщо в архіві немає вкладеної теки
+`flatstitch/`, копіюйте з `/tmp/flatstitch_new/.`.)
+
+**2. Перевірте, що потрапить у коміт:**
+
+```bash
+git status
+```
+
+Мають бути нові `flatstitch_gtk.py`, `flatstitch_qt.py`,
+`flatstitch_launcher.py`, `flatstitch_native_common.py`,
+`flatstitch/preview.py`, `build-deb.sh`, нова тека
+`deb/flatstitch_1.1.0-1_all/` (стара `1.0.1` - у видалених) та змінені
+README / `CONTRIBUTING.md` / `flatstitch/pipeline.py`. **Не повинно**
+бути `venv/`, `__pycache__/`, `*.deb` і жодних токенів чи паролів.
+
+**3. Закомітьте й надішліть:**
+
+```bash
+git add -A
+git commit -m "flatstitch 1.1.0: native GTK3/Qt5 interfaces chosen by desktop environment"
+git push
+```
+
+**4. Випустіть Release.** Як у кроці 6, але з тегом `v1.1.0`, назвою
+`flatstitch 1.1.0` і файлом `flatstitch_1.1.0-1_all.deb`. Опис, наприклад:
+
+```
+- Рідні графічні інтерфейси: GTK3 (GNOME, Cinnamon, XFCE, MATE, LXDE)
+  і Qt5 (KDE Plasma, LXQt). flatstitch-gui сам визначає оболонку;
+  для інших оболонок - Tk, як і раніше
+- Вибір вручну: flatstitch-gui --gui gtk|qt|tk, змінна FLATSTITCH_GUI
+  або "gui" у ~/.config/flatstitch/config.json
+- Попередній перегляд результату в нативних інтерфейсах; якщо
+  перегляд не вдався - причина видна в журналі
+- Команда зшивання повідомляє точні імена записаних файлів
+
+Встановлення:
+    sudo apt install ./flatstitch_1.1.0-1_all.deb
+Для KDE/LXQt додатково: sudo apt install python3-pyqt5
+```
+
+Якщо змінювали дані автора (розділ 0), перезберіть пакет командою
+`./build-deb.sh` перед додаванням `.deb` до Release.
 
 ---
 

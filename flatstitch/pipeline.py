@@ -195,6 +195,9 @@ def stitch(
         io_utils.save_tiff(dest, result, compression=compression, has_alpha=transparent)
         del result
         logger.info(_("pipeline.log.saved", path=dest))
+        # Language-independent marker so GUI frontends know exactly which
+        # files this run wrote (instead of guessing with a glob).
+        print(f"__FLATSTITCH_WRITTEN__:{dest}", flush=True)
         written.append(str(dest))
 
     return written

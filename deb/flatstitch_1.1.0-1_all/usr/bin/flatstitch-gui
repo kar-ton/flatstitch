@@ -1,0 +1,8 @@
+#!/bin/bash
+# flatstitch GUI launcher. Runs under the SYSTEM python3 (GTK/Qt bindings
+# come from the distribution); the launcher picks the interface that
+# matches the desktop (GNOME/Cinnamon/XFCE/MATE/LXDE -> GTK, KDE/LXQt -> Qt,
+# anything else -> Tk) and the image processing itself always runs in the
+# private venv. Override: flatstitch-gui --gui gtk|qt|tk
+export PYTHONDONTWRITEBYTECODE=1
+exec /usr/bin/python3 /opt/flatstitch/flatstitch_launcher.py "$@"
