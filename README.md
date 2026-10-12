@@ -8,6 +8,8 @@ Editor), but deliberately narrowed to one specific case: **stitching flat
 scans**, not photo panoramas.
 
 <img width="1080" height="866" alt="image" src="https://github.com/user-attachments/assets/15c7786c-d500-4b58-a92e-8f7a92970461" />
+<img width="1100" height="866" alt="зображення" src="https://github.com/user-attachments/assets/f5a2d447-8357-40d8-9ba6-512bf67390ad" />
+<img width="1089" height="856" alt="зображення" src="https://github.com/user-attachments/assets/3684462f-d351-43b2-80bf-4459fc7893ba" />
 
 
 There are two ways to run it, both built on the same core (the
